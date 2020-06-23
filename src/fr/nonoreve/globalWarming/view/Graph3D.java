@@ -19,9 +19,12 @@ import javafx.scene.shape.MeshView;
 import javafx.scene.shape.TriangleMesh;
 
 import java.net.URL;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 
 public class Graph3D extends Group implements ChangeListener<Number> {
 
+    public static final NumberFormat formatter = new DecimalFormat("#0.000");
     private final double earthRadius = 1.0;
     private static final float TEXTURE_LAT_OFFSET = -0.2f;
     private static final float TEXTURE_LON_OFFSET = 2.8f;
@@ -63,8 +66,6 @@ public class Graph3D extends Group implements ChangeListener<Number> {
         this.currentMode = defaultMode;
         this.hud = hud;
         this.currentYear = FXController.initYear;
-
-        redrawGraph(defaultMode);
     }
 
     /**
@@ -104,15 +105,18 @@ public class Graph3D extends Group implements ChangeListener<Number> {
                 for (double lon = DataLoader.firstPosition.getLongitude(); lon <= DataLoader.lastPosition.getLongitude(); lon += DataLoader.longitudeDelta) {
                     LocalDatedAnomaly lda = DataLoader.getValueForYearAndChunk(currentYear, lat, lat + 2.0, lon, lon + 2.0);
                     if (lda != null && !Double.isNaN(lda.getValue())) {
-                        System.out.println(lda);
-                    PhongMaterial mat = new PhongMaterial();
-                    mat.setSpecularColor(percentageColor(Math.abs(Math.random())));
-                    mat.setDiffuseColor(percentageColor(Math.abs(Math.random())));
-                    Point3D topRight = geoPosTo3dCoord(lat + DataLoader.latitudeDelta, lon + DataLoader.longitudeDelta, earthRadius * OVERLAY_RADIUS);
-                    Point3D botRight = geoPosTo3dCoord(lat, lon + DataLoader.longitudeDelta, earthRadius * OVERLAY_RADIUS);
-                    Point3D topLeft = geoPosTo3dCoord(lat, lon, earthRadius * OVERLAY_RADIUS);
-                    Point3D botLeft = geoPosTo3dCoord(lat + DataLoader.latitudeDelta, lon, earthRadius * OVERLAY_RADIUS);
-                    drawQuadrilateral(topRight, botRight, topLeft, botLeft, mat);
+                        System.out.println("Loading : " + formatter.format((1 + (lat * lon) / (DataLoader.lastPosition.getLatitude() * DataLoader.lastPosition.getLongitude())) / 0.02) + "%");
+                        PhongMaterial mat = new PhongMaterial();
+                        double max = Math.max(DataLoader.getExtremesForYear(currentYear).getMax(), Math.abs(DataLoader.getExtremesForYear(currentYear).getMin()));
+                        double percentage = (lda.getValue() + max)
+                                / (max * 2);
+                        mat.setSpecularColor(percentageColor(percentage));
+                        mat.setDiffuseColor(percentageColor(percentage));
+                        Point3D topRight = geoPosTo3dCoord(lat + DataLoader.latitudeDelta, lon + DataLoader.longitudeDelta, earthRadius * OVERLAY_RADIUS);
+                        Point3D botRight = geoPosTo3dCoord(lat, lon + DataLoader.longitudeDelta, earthRadius * OVERLAY_RADIUS);
+                        Point3D topLeft = geoPosTo3dCoord(lat, lon, earthRadius * OVERLAY_RADIUS);
+                        Point3D botLeft = geoPosTo3dCoord(lat + DataLoader.latitudeDelta, lon, earthRadius * OVERLAY_RADIUS);
+                        drawQuadrilateral(topRight, botRight, topLeft, botLeft, mat);
                     }
                 }
             }

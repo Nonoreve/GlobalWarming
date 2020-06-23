@@ -33,7 +33,7 @@ public class SimpleTest {
     public void MinTemperatureTest() {
         //Vérifier que la température minimale dans le fichier est -6.2441664
         double min = Double.MAX_VALUE;
-        for (short year : DataLoader.years) {
+        for (short year : DataLoader.years.keySet()) {
             double minY = DataLoader.getExtremesForYear(year).getMin();
             if (min > minY)
                 min = minY;
@@ -45,7 +45,7 @@ public class SimpleTest {
     public void MaxTemperatureTest() {
         //Vérifier que la température maximale dans le fichier est 8.97125
         double max = Double.MIN_VALUE;
-        for (short year : DataLoader.years) {
+        for (short year : DataLoader.years.keySet()) {
             double maxY = DataLoader.getExtremesForYear(year).getMax();
             if (max < maxY)
                 max = maxY;

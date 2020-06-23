@@ -8,7 +8,7 @@ public class DataLoader {
 
     private static final HashMap<Integer, LocalDatedAnomaly> anomalies = new HashMap<>();
     private static final HashMap<Short, ExtremesTemp> extremesTemps = new HashMap<>();
-    public static Set<Short> years = new HashSet<>();
+    public static HashMap<Short, List<Integer>> years = new HashMap<Short, List<Integer>>();
 
     // computed at data load to speed up
     public static short firstYear, lastYear;
@@ -34,7 +34,7 @@ public class DataLoader {
                 lastYear = parseSillyString(array[array.length - 1]);
                 for (String s : array) {
                     try {
-                        years.add(parseSillyString(s));
+                        years.put(parseSillyString(s), new ArrayList<Integer>());
                     } catch (NumberFormatException e) {
                         // expected lat and long at the beggining of the line
                     }
@@ -70,8 +70,8 @@ public class DataLoader {
                 if (firstPosition == null)
                     firstPosition = currentPosition;
 
-                // get the all the values
-                Iterator<Short> it = years.iterator();
+                // get all the values
+                Iterator<Short> it = years.keySet().iterator();
                 for (int i = 2; i < array.length; i++) {
                     Double value = null;
                     try {
@@ -86,7 +86,9 @@ public class DataLoader {
                         System.err.println(anomalies.get(lda.hashCode()));
                         System.err.println(lda);
                     }
-                    anomalies.put(lda.hashCode(), lda);
+                    int hash = lda.hashCode();
+                    anomalies.put(hash, lda);
+                    years.get(currentYear).add(hash);
 
                     // computing min and max temperatures
                     if (value != null) {
@@ -140,10 +142,7 @@ public class DataLoader {
      */
     public static List<LocalDatedAnomaly> getDataForYear(short year) {
         List<LocalDatedAnomaly> result = new ArrayList<>();
-        anomalies.forEach((i, a) -> {
-            if (a.getYear() == year)
-                result.add(a);
-        });
+        years.get(year).forEach(h -> result.add(anomalies.get(h)));
         result.sort((a1, a2) -> {
             if (a1.getPosition().getLatitude() != a2.getPosition().getLatitude())
                 return (int) (a1.getPosition().getLatitude() - a2.getPosition().getLatitude());
@@ -158,6 +157,7 @@ public class DataLoader {
 
     /**
      * @return all the LocalDatedAnomalies that matches this position
+     * DEPRECATED way too long to be used for more than a few calls
      */
     public static List<LocalDatedAnomaly> getDataForChunk(double minLatitude, double maxLatitude, double minLongitude, double maxLongitude) {
         List<LocalDatedAnomaly> result = new ArrayList<>();

@@ -1,21 +1,16 @@
 package fr.nonoreve.globalWarming.view;
 
 import fr.nonoreve.globalWarming.FXController;
-import fr.nonoreve.globalWarming.model.DataLoader;
 import javafx.scene.Group;
 import javafx.scene.control.Label;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-
 public class Hud extends Group {
     private final double HEIGHT = 32, WIDTH = 32;
     private final double INTERVALS = 0.1, OFFSET = 1.01;
     private final double MIDDLE = 10 * HEIGHT / 2;
-    private static final NumberFormat formatter = new DecimalFormat("#0.000");
 
     private Polygon marker; // TODO display the value of the current selected zone (not implemented)
     private double height; // size of the panel
@@ -54,7 +49,7 @@ public class Hud extends Group {
     }
 
     public void update(double minValue, double maxValue) {
-        minL.setText(String.valueOf(formatter.format(minValue)));
-        maxL.setText(String.valueOf(formatter.format(maxValue)));
+        minL.setText(String.valueOf(Graph3D.formatter.format(minValue)));
+        maxL.setText(String.valueOf(Graph3D.formatter.format(maxValue)));
     }
 }
